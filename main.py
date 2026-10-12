@@ -1,6 +1,7 @@
 import pygame
 import sys
-from fase import desenhar_fase
+from fase import desenhar_fase, fundo_fase, PLATAFORMAS
+from personagem import Personagem
 
 pygame.init()
 
@@ -38,6 +39,7 @@ fonte_pequena = pygame.font.SysFont("Arial", 22)
 
 # Estado atual da tela
 tela_atual = "menu"
+jogador = Personagem(100, 400)
 
 # Botões do menu
 botao_jogar = pygame.Rect(280, 290, 240, 55)
@@ -111,16 +113,16 @@ def desenhar_titulo(texto, centro):
 
 
 # Loop principal do jogo
+
 while True:
     relogio.tick(60)
 
+    # Eventos do jogo
     for evento in pygame.event.get():
 
         if evento.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-
-        # Tecla ESC
 
         # Tecla ESC
         if evento.type == pygame.KEYDOWN:
@@ -134,7 +136,6 @@ while True:
         # Cliques do mouse
         if evento.type == pygame.MOUSEBUTTONDOWN:
             if evento.button == 1:
-
                 if tela_atual == "menu":
 
                     if botao_jogar.collidepoint(evento.pos):
@@ -148,41 +149,45 @@ while True:
                         pygame.quit()
                         sys.exit()
 
-        # Desenhar o fundo conforme a tela atual
-        if tela_atual == "menu" or tela_atual == "opcoes":
-            tela.blit(fundo_menu, (0, 0))
+    # Desenhar o fundo conforme a tela atual
+    if tela_atual == "menu" or tela_atual == "opcoes":
+        tela.blit(fundo_menu, (0, 0))
 
-        # Menu principal
-        if tela_atual == "menu":
-            desenhar_titulo("Robin Hod", (400, 180))
-            desenhar_botao("JOGAR", botao_jogar)
-            desenhar_botao("OPCOES", botao_opcoes)
-            desenhar_botao("SAIR", botao_sair)
+    # Menu principal
+    if tela_atual == "menu":
+        desenhar_titulo("Robin Hod", (400, 180))
+        desenhar_botao("JOGAR", botao_jogar)
+        desenhar_botao("OPCOES", botao_opcoes)
+        desenhar_botao("SAIR", botao_sair)
 
-        # Tela do jogo
-        elif tela_atual == "jogo":
-            desenhar_fase(tela, fundo_menu)
+    # Tela do jogo
+    elif tela_atual == "jogo":
+        desenhar_fase(tela, fundo_fase)
 
-        # Tela de opções
-        elif tela_atual == "opcoes":
-            titulo = fonte_titulo.render(
-                "OPCOES", True, AMARELO
-            )
+        teclas = pygame.key.get_pressed()
+        jogador.atualizar(teclas, PLATAFORMAS)
+        jogador.desenhar(tela)
 
-            tela.blit(
-                titulo,
-                titulo.get_rect(center=(400, 220))
-            )
+    # Tela de opções
+    elif tela_atual == "opcoes":
+        titulo = fonte_titulo.render(
+            "OPCOES", True, AMARELO
+        )
 
-            instrucao = fonte_pequena.render(
-                "Pressione ESC para voltar",
-                True, BRANCO
-            )
+        tela.blit(
+            titulo,
+            titulo.get_rect(center=(400, 220))
+        )
 
-            tela.blit(
-                instrucao,
-                instrucao.get_rect(center=(400, 330))
-            )
+        instrucao = fonte_pequena.render(
+            "Pressione ESC para voltar",
+            True, BRANCO
+        )
 
-        # Atualizar a tela
-        pygame.display.flip()
+        tela.blit(
+            instrucao,
+            instrucao.get_rect(center=(400, 330))
+        )
+
+    # Atualizar a tela continuamente
+    pygame.display.flip()
